@@ -10,16 +10,14 @@ pipeline {
         stage('Удаляем старые контейнеры и образы') {
             steps {
                 script {
-                    // Останавливаем и удаляем контейнер с нужным именем, если он есть
                     sh "docker ps -a -q --filter name=hello-bezhan-container | xargs -r docker rm -f"
-                    // Удаляем образ с нужным именем, если он есть
                     sh "docker images -q hello-bezhan-app | xargs -r docker rmi -f"
                 }
             }
         }
         stage('Выгружаем код из репозитория') {
             steps {
-                git 'https://github.com/pokeuq/hellojenkins.git'
+                git branch: 'main', url: 'https://github.com/pokeuq/hellojenkins.git'
             }
         }
         stage('Собираем docker image') {
