@@ -19,7 +19,7 @@ pipeline {
         }
         stage('Выгружаем код из репозитория') {
             steps {
-                git 'https://github.com/xDeshka/hellojenkins.git'
+                git 'https://github.com/pokeuq/hellojenkins.git'
             }
         }
         stage('Собираем docker image') {
