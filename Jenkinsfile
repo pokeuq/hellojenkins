@@ -1,36 +1,35 @@
-~~~{"variant":"standard","title":"Jenkinsfile for khaymuh","id":"81740"}
 pipeline {
     agent any
+    
     parameters {
-        string(name: 'STUDENT_NAME', defaultValue: 'bezhan daniel', description: 'ФИО студента')
-        string(name: 'PORT', defaultValue: '8080', description: 'Порт приложения')
+        string(name: 'STUDENT_NAME', defaultValue: 'hello-bezhan-container', description: 'Имя студента')
+        string(name: 'PORT', defaultValue: '8059', description: 'Порт')
     }
-    environment {
-        IMAGE_NAME = "student-khaymuh-app"
-        CONTAINER_NAME = "hello-khaymuh-container"
-    }
+    
     stages {
-        stage('Cleanup') {
+        stage('Удаляем старые контейнеры и образы') {
             steps {
                 script {
-                    sh "docker ps -a -q --filter name=${env.CONTAINER_NAME} | xargs -r docker rm -f || true"
-                    sh "docker images -q ${env.IMAGE_NAME} | xargs -r docker rmi -f || true"
+                    // Останавливаем и удаляем контейнер с нужным именем, если он есть
+                    sh "docker ps -a -q --filter name=hello-bezhan-container | xargs -r docker rm -f"
+                    // Удаляем образ с нужным именем, если он есть
+                    sh "docker images -q hello-bezhan-app | xargs -r docker rmi -f"
                 }
             }
         }
-        stage('Checkout') {
+        stage('Выгружаем код из репозитория') {
             steps {
-                git url: 'https://github.com/pokeuq/hellojenkins.git', branch: 'main'
+                git 'https://github.com/xDeshka/hellojenkins.git'
             }
         }
-        stage('Build image') {
+        stage('Собираем docker image') {
             steps {
                 script {
-                    dockerImage = docker.build(env.IMAGE_NAME)
+                    dockerImage = docker.build("hello-bezhan-app")
                 }
             }
         }
-        stage('Run unit tests in image') {
+        stage('Запускаем тесты в докере') {
             steps {
                 script {
                     dockerImage.inside {
@@ -39,20 +38,12 @@ pipeline {
                 }
             }
         }
-        stage('Run container') {
+        stage('Запускаем докер контейнер') {
             steps {
                 script {
-                    sh "docker run -d --name ${env.CONTAINER_NAME} -p ${params.PORT}:${params.PORT} -e STUDENT_NAME='${params.STUDENT_NAME}' -e PORT=${params.PORT} ${env.IMAGE_NAME}"
+                    sh "docker run -d --name hello-bezhan-container -p ${params.PORT}:${params.PORT} -e STUDENT_NAME='${params.STUDENT_NAME}' -e PORT=${params.PORT} hello-bezhan-app"
                 }
             }
         }
     }
-    post {
-        failure {
-            script {
-                echo "Сборка провалена. Проверьте Console Output."
-            }
-        }
-    }
 }
-~~~
