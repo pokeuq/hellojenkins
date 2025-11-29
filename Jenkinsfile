@@ -3,7 +3,7 @@ pipeline {
     
     parameters {
         string(name: 'STUDENT_NAME', defaultValue: 'hello-bezhan-container', description: 'Имя студента')
-        string(name: 'PORT', defaultValue: '8059', description: 'Порт')
+        string(name: 'PORT', defaultValue: '8083', description: 'Порт')
     }
     
     stages {
